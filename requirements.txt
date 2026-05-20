@@ -1,0 +1,11 @@
+# Основні бібліотеки для обробки
+numpy<2
+onnxruntime
+torch
+sounddevice>=0.4.6
+soundfile
+
+# Спеціалізовані компоненти StyleTTS2
+git+https://github.com/patriotyk/ukrainian-word-stress.git
+git+https://github.com/patriotyk/ipa-uk.git
+git+https://github.com/patriotyk/styletts2-inference.git
