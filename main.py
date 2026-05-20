@@ -1,8 +1,12 @@
 # --- ПОВНЕ ПРИДУШЕННЯ ВСЬОГО ---
+import warnings
+# Придушення специфічних попереджень torch до імпортів
+warnings.filterwarnings("ignore", category=UserWarning, module="torch.package")
+warnings.filterwarnings("ignore")
+
 import sys, os
 
-# Радикальне придушення на рівні системи до будь-яких імпортів
-# Перенаправляємо stderr у "діру", щоб вбити будь-який шум
+# Перенаправляємо stderr у "діру" для повної тиші на старті
 sys.stderr = open(os.devnull, 'w')
 
 # Змінні оточення для мовчання бібліотек
@@ -14,10 +18,9 @@ os.environ['HF_HUB_DISABLE_DOWNLOADS_WARNING'] = '1'
 
 import torch
 
-# Повертаємо stderr назад, щоб ми бачили наші власні принти та помилки
+# Повертаємо stderr назад для наших принтів
 sys.stderr = sys.__stdout__
 
-import warnings
 import logging
 import numpy as np
 import onnxruntime as ort
@@ -28,21 +31,16 @@ from styletts2_inference.models import StyleTTS2Tokenizer
 from ukrainian_word_stress import Stressifier
 from ipa_uk import ipa as uk_to_ipa
 
-# Придушення внутрішніх попереджень Python
-warnings.filterwarnings("ignore")
+# Налаштування логування
 logging.getLogger().setLevel(logging.ERROR)
 
 # Патч кодування Windows для кирилиці
 original_open = builtins.open
-
-
 def utf8_open(*args, **kwargs):
     if len(args) > 1 and 'b' in args[1]: return original_open(*args, **kwargs)
     if 'mode' in kwargs and 'b' in kwargs['mode']: return original_open(*args, **kwargs)
     kwargs['encoding'] = 'utf-8'
     return original_open(*args, **kwargs)
-
-
 builtins.open = utf8_open
 
 # --- ІНІЦІАЛІЗАЦІЯ ---
@@ -54,7 +52,6 @@ session = ort.InferenceSession("models/styletts2.onnx")
 style_vector = torch.load("./voices/Інна Гелевера.pt", map_location='cpu').detach().numpy()
 if len(style_vector.shape) == 1:
     style_vector = np.expand_dims(style_vector, axis=0)
-
 
 def generate_and_play(text):
     text_stressed = stressifier(text)
@@ -78,7 +75,6 @@ def generate_and_play(text):
     print(f"✅ Готово! (Час: {time.time() - start_time:.3f} сек)")
     sd.play(wav.astype(np.float32), 24000)
     sd.wait()
-
 
 if __name__ == "__main__":
     print("\n🚀 Система готова. Введіть текст (або 'exit' для виходу):")
