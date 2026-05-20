@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Віртуальне середовище
+.venv/
+venv/
+env/
+.env
+
+# Папки середовищ розробки
+.idea/
+.vscode/
